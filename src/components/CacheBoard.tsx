@@ -6,7 +6,9 @@ class CacheBoard extends React.Component {
     render () {
         return <>
             <Card>
-                <Card.Header>Usage Rate of Cache Paths analysis</Card.Header>
+                <Card.Header style={{ background: '#ffb8e2' }}>
+                    Usage Rate of Cache Paths analysis
+                </Card.Header>
                 <Card.Body>
                     Lorem ipsum dolor sit amet.
                     <br/>
@@ -56,6 +58,31 @@ class CacheBoard extends React.Component {
                                 x: [1, 2, 3, 4, 5, 6],
                                 y: [15, 18, 17, 14, 18, 16],
                                 marker: {color: 'green'},
+                            },
+                        ]}
+                        config={{ displaylogo: false }}
+                    />
+                </Card.Body>
+            </Card>
+            <Card>
+                <Card.Header style={{ background: '#ffe189' }}>
+                    Write Pending analysis
+                </Card.Header>
+                <Card.Body>
+                    <Plot
+                        layout={{
+                            title: 'Cache: Write pending rate.',
+                            width: 900,
+                            height: 300,
+                            legend: { orientation: 'h', y: -0.15 }
+                        }}
+                        data={[
+                            {
+                                name: 'ALL',
+                                type: 'scatter', mode: 'lines',
+                                x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                y: [4, 4, 6, 4, 4, 2, 4, 4, 4, 3],
+                                marker: {color: 'blue'},
                             },
                         ]}
                         config={{ displaylogo: false }}

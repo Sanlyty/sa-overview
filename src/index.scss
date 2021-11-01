@@ -1,6 +1,12 @@
 @import './assets/fonts.css';
 @import './assets/theme.scss';
 
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
 .content-wrapper {
     height: 100%;
 }
@@ -83,4 +89,8 @@ body select.form-control {
         //     color: black;
         // }
     }
+}
+
+.btn.btn-light {
+    border-color: #cfcfcf;
 }
