@@ -1,0 +1,86 @@
+@import './assets/fonts.css';
+@import './assets/theme.scss';
+
+.content-wrapper {
+    height: 100%;
+}
+
+#context-menu > * {
+    z-index: 1000;
+}
+
+body {
+    --primary-text-color: black;
+    --secondary-text-color: #333;
+    --primary-background-color: #ecf0f5;
+    background-color: #ecf0f5;
+}
+
+.dark-mode body {
+    --primary-text-color: white;
+    --secondary-text-color: lightgray;
+    --primary-background-color: var(--gray-dark);
+    background-color: gray;
+}
+
+#root {
+    height: 100%;
+
+    :is(.Toastify__toast-container--top-left, .Toastify__toast-container--top-center, .Toastify__toast-container--top-right) {
+        top: 4em;
+    }
+
+    .Toastify__toast--warning {
+        background-color: #df9012;
+    }
+
+    .toast-btn-row {
+        margin-top: 0.25rem;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+    }
+
+    .toast-btn {
+        padding: 0.25rem 0.5rem;
+        border: 1px solid gray;
+        border-radius: 0.25rem;
+
+        text-align: center;
+    }
+}
+
+#context-menu {
+    .react-contexify__item__content > svg:first-child {
+        margin-right: 0.5rem;
+    }
+
+    .react-contexify__item__content {
+        padding: 4px 8px;
+    }
+}
+
+
+body select.form-control {
+    background-color: transparent !important;
+
+    &:focus {
+        box-shadow: none;
+    }
+
+    .dark-mode & {
+        color: white;
+        border: 1px solid #494949;
+
+        &:not([multiple]) > option {
+            color: black;
+        }
+
+        // > option {
+        //     color: black;
+        // }
+    }
+}

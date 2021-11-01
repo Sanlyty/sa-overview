@@ -1,0 +1,13 @@
+.overview-view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: flex-start;
+
+    .overview-inner {
+        width: 100%;
+        max-width: 1000px;
+    }
+}
