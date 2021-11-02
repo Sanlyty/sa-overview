@@ -5,11 +5,13 @@ import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import './ScrollToTopButton.scss';
 import { Theme, ThemeContext } from '../ThemeContext';
 
+interface Props {}
+
 interface State {
     visible: boolean
 }
 
-class ScrollToTopButton extends React.Component<any, State, Theme> {
+class ScrollToTopButton extends React.Component<Props, State, Theme> {
     static contextType = ThemeContext;
     state = { visible: false }
 

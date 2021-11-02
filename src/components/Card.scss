@@ -1,0 +1,12 @@
+.overview-card {
+    .accordion-button {
+        user-select: none;
+        pointer-events: none;
+
+        &.collapsed,
+        &::after {
+            cursor: pointer;
+            pointer-events: all;
+        }
+    }
+}
