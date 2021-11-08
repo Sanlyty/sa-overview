@@ -1,12 +1,25 @@
 .overview-card {
+    &.drag-mode {
+        opacity: 0.6;
+    }
+
     .accordion-button {
         user-select: none;
         pointer-events: none;
 
-        &.collapsed,
+        &:not(.collapsednt),
         &::after {
-            cursor: pointer;
             pointer-events: all;
+            cursor: pointer;
+        }
+
+        &.collapsednt::after {
+            transform: rotate(180deg);
+        }
+
+        .grabbity-header[draggable] {
+            pointer-events: all;
+            cursor: grab;
         }
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import Plotly from 'react-plotly.js';
 
-interface Props {
+export interface PlotProps {
     title: string,
     traces: Plotly.Data[],
 }
@@ -9,7 +9,7 @@ interface Props {
 interface State {}
 
 
-export class Plot extends React.Component<Props, State> {
+export class Plot extends React.Component<PlotProps, State> {
     render() {
         const { title, traces } = this.props;
 
