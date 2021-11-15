@@ -11,56 +11,73 @@ export class CacheBoard extends React.Component {
                     uid: 'cache-path-usage',
                     title: 'Usage Rate of Cache Paths analysis',
                     color: '#ffb8e2',
-                    children: <>
-                        Lorem ipsum dolor sit amet.
-                        <br/>
-                        <Plot
-                            title='Cache: Usage rates of access path between MP units and HIEs.'
-                            traces={[
-                                {
-                                    name: 'MPU-010.HIE-01G',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [2, 6, 4, 5, 7, 6],
-                                    marker: {color: 'red'},
-                                },
-                                {
-                                    name: 'MPU-210.HIE-21G',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [5, 8, 3, 2, 4, 1],
-                                },
-                            ]}
-                        />
-                        <br/>
-                        <Plot
-                            title='Cache: Usage rates of access path between HIEs units and ISWs.'
-                            traces={[
-                                {
-                                    name: 'HIE-01G.ISW01',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [23, 14, 18, 10, 7, 8],
-                                    marker: {color: 'blue'},
-                                },
-                                {
-                                    name: 'HIE-21G.ISW11',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [15, 18, 17, 14, 18, 16],
-                                    marker: {color: 'green'},
-                                },
-                            ]}
-                        />
-                    </>
+                    layout: [
+                        {
+                            i: 'mps-to-hies',
+                            x: 0, y: 0, h: 1, w: 1
+                        },
+                        {
+                            i: 'hies-to-isws',
+                            x: 0, y: 1, h: 1, w: 1
+                        }
+                    ],
+                    children: [
+                        <div key='mp-to-hies'>
+                            <Plot
+                                title='Cache: Usage rates of access path between MP units and HIEs.'
+                                traces={[
+                                    {
+                                        name: 'MPU-010.HIE-01G',
+                                        type: 'scatter', mode: 'lines',
+                                        x: [1, 2, 3, 4, 5, 6],
+                                        y: [2, 6, 4, 5, 7, 6],
+                                        marker: {color: 'red'},
+                                    },
+                                    {
+                                        name: 'MPU-210.HIE-21G',
+                                        type: 'scatter', mode: 'lines',
+                                        x: [1, 2, 3, 4, 5, 6],
+                                        y: [5, 8, 3, 2, 4, 1],
+                                    },
+                                ]}
+                            />
+                        </div>,
+                        <div key='hies-to-isws'>
+                            <Plot
+                                title='Cache: Usage rates of access path between HIEs units and ISWs.'
+                                traces={[
+                                    {
+                                        name: 'HIE-01G.ISW01',
+                                        type: 'scatter', mode: 'lines',
+                                        x: [1, 2, 3, 4, 5, 6],
+                                        y: [23, 14, 18, 10, 7, 8],
+                                        marker: {color: 'blue'},
+                                    },
+                                    {
+                                        name: 'HIE-21G.ISW11',
+                                        type: 'scatter', mode: 'lines',
+                                        x: [1, 2, 3, 4, 5, 6],
+                                        y: [15, 18, 17, 14, 18, 16],
+                                        marker: {color: 'green'},
+                                    },
+                                ]}
+                            />
+                        </div>
+                    ]
                 },
                 'write-pending': {
                     uid: 'write-pending',
                     title: 'Write Pending analysis',
                     color: '#ffe189',
-
-                    children: <>
+                    layout: [
+                        {
+                            i: 'wirte-pending-rate',
+                            x: 0, y: 0, w: 1, h: 1
+                        }
+                    ],
+                    children: [
                         <Plot
+                            key='write-pending-rate'
                             title='Cache: Write pending rate.'
                             traces={[
                                 {
@@ -72,15 +89,19 @@ export class CacheBoard extends React.Component {
                                 },
                             ]}
                         />
-                    </>
+                    ]
                 },
                 'foobar-lipsum': {
                     uid: 'foobar-lipsum',
                     title: 'Lorem ipsum.',
                     color: '#59c96d',
-
-                    children: <>
+                    layout: [
+                        { i: '1', x: 0, y: 0, h: 1, w: 1},
+                        { i: '2', x: 0, y: 1, h: 1, w: 1},
+                    ],
+                    children: [
                         <Plot
+                            key='1'
                             title='Dolor sit.'
                             traces={[
                                 {
@@ -91,8 +112,9 @@ export class CacheBoard extends React.Component {
                                     marker: {color: 'green'},
                                 },
                             ]}
-                        />
+                        />,
                         <Plot
+                            key='2'
                             title='Amet adipiscing.'
                             traces={[
                                 {
@@ -104,7 +126,7 @@ export class CacheBoard extends React.Component {
                                 },
                             ]}
                         />
-                    </>
+                    ]
                 },
             }}
         </CardBoard>;

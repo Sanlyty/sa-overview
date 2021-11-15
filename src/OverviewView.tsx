@@ -1,4 +1,5 @@
 import React from 'react';
+import GridLayout from 'react-grid-layout';
 import { CacheBoard } from './components/CacheBoard';
 import { ThemeContext } from './ThemeContext';
 import './OverviewView.scss';
@@ -13,6 +14,10 @@ interface Props {
 class OverviewView extends React.Component<Props> {
     render () {
         const { darkMode } = this.props;
+        const layout = [
+            { i: 'a', x: 0, y: 0, h: 1, w: 1 },
+            { i: 'b', x: 0, y: 1, h: 1, w: 1 }
+        ];
         return (
             <ThemeContext.Provider value={{ darkMode }}>
                 {/* <Helmet>
@@ -24,6 +29,12 @@ class OverviewView extends React.Component<Props> {
                             <h1>Overview</h1>
                             Something something
                         </div>
+                        <GridLayout layout={layout} rowHeight={20} cols={6} width={700}>{
+                            [
+                                <div key='a'>Ahoj</div>,
+                                <div key='b'>Čaudy</div>
+                            ]
+                        }</GridLayout>
                         <CacheBoard />
                     </div>
                 </div>

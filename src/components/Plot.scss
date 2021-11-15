@@ -1,0 +1,19 @@
+
+.plot {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    .graph-header {
+        text-align: center;
+    }
+
+    .plot-wrapper-outer {
+        flex-grow: 1;
+        position: relative;
+
+        .plot-wrapper-inner {
+            height: 100%;
+        }
+    }
+}
