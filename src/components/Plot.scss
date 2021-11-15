@@ -4,8 +4,13 @@
     flex-direction: column;
     height: 100%;
 
+    border: 1px solid rgb(230, 230, 230);
+    background: white;
+
     .graph-header {
         text-align: center;
+        user-select: none;
+        cursor: grab;
     }
 
     .plot-wrapper-outer {

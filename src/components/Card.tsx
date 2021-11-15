@@ -86,6 +86,7 @@ export class Card extends React.Component<CardProps, State> {
                         margin={[ 10, 10 ]}
                         compactType='vertical'
 
+                        draggableHandle='.graph-header'
                         onLayoutChange={noop}
                     >
                         {children}

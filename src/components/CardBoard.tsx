@@ -1,15 +1,25 @@
 import React, { createRef } from 'react';
-import { debounce } from 'lodash';
+import { debounce, omit } from 'lodash';
+import { Layout } from 'react-grid-layout';
+
 import { Card, CardProps } from './Card';
+import { Plot, PlotProps as PlotComponentProps } from './Plot';
+
 import './CardBoard.scss';
 
+
+interface PlotProps
+extends PlotComponentProps {
+    layout: Omit<Layout, 'i'>
+}
+
 export interface CardBoardItem
-extends CardProps {
-    children?: React.ReactNode
+extends Omit<CardProps, 'layout' | 'uid'> {
+    plots: Record<string, PlotProps>
 }
 
 export interface CardBoardProps {
-    children: { [id: string]: CardBoardItem }
+    children: Record<string, CardBoardItem>
 }
 
 interface State {
@@ -25,21 +35,23 @@ export class CardBoard extends React.Component<CardBoardProps, State> {
     computeSortedCards() {
         const cards = this.props.children;
         const { sortedIds } = this;
-        const sortedCards: CardBoardItem[] = [];
+        const sortedCards: { card: CardBoardItem, id: string }[] = [];
 
         // collect cards with sorting preferences
         for (let i = 0; i < sortedIds.length; i++) {
             const id = sortedIds[i];
             if (cards[id] === undefined) continue;
-            sortedCards.push(cards[id]);
+            sortedCards.push({ card: cards[id], id });
         }
 
         // put cards without sorting preferences at the end
-        for (const card of Object.values(cards)) {
-            if (!sortedCards.includes(card)) sortedCards.push(card);
+        for (const [id, card] of Object.entries(cards)) {
+            if (!sortedCards.some(c => c.card === card)) {
+                sortedCards.push({ card, id });
+            }
         }
 
-        this.sortedIds = sortedCards.map(c => c.uid);
+        this.sortedIds = sortedCards.map(c => c.id);
         return sortedCards;
     }
 
@@ -104,9 +116,19 @@ export class CardBoard extends React.Component<CardBoardProps, State> {
 
     render() {
         return <div className='card-board' ref={this.ref}>
-            {this.computeSortedCards().map(p =>
-                <Card {...p} key={p.uid} dragStarted={this.dragStarted} dragEnded={this.dragEnded} />
-            )}
+            {this.computeSortedCards().map(({ card, id }) => {
+                const layout: Layout[] = [];
+                const children: React.ReactChild[] = [];
+
+                for (const [key, plot] of Object.entries(card.plots)) {
+                    layout.push({ ...plot.layout, i: key });
+                    children.push( <div key={key}><Plot {...plot} /></div> );
+                }
+
+                const props = Object.assign(omit(card, 'plots'), { layout, children });
+
+                return <Card {...props} key={id} uid={id} dragStarted={this.dragStarted} dragEnded={this.dragEnded} />;
+            })}
         </div>;
     }
 }

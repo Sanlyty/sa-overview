@@ -1,6 +1,7 @@
 import React from 'react';
 import Plotly from 'react-plotly.js';
 import { AutoSizer } from 'react-virtualized';
+import { debounce } from 'lodash';
 
 import './Plot.scss';
 
@@ -10,20 +11,32 @@ export interface PlotProps {
     traces: Plotly.Data[];
 }
 
-interface State {}
+interface State {
+    width: number;
+    height: number;
+}
 
 
 export class Plot extends React.Component<PlotProps, State> {
+    state = { width: 300, height: 300 };
+
+    onResize = debounce(
+        ({ width, height }) => this.setState({ width, height }),
+        200,
+        { leading: true, trailing: true, maxWait: 500 }
+    )
+
     render() {
         const { title, traces } = this.props;
+        const { width, height } = this.state;
 
         return (
             <div className='plot'>
                 <p className='graph-header'>{title}</p>
                 <div className='plot-wrapper-outer'>
                     <div className='plot-wrapper-inner'>
-                        <AutoSizer defaultHeight={100}>{
-                            ({ width, height }) =>
+                        <AutoSizer defaultHeight={100} onResize={this.onResize}>{
+                            (_) =>
                                 <Plotly
                                     data={traces}
                                     config={{ displaylogo: false }}
