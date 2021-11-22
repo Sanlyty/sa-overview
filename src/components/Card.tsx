@@ -29,7 +29,7 @@ export class Card extends React.Component<CardProps, State> {
 
     toggleCollapsed = (e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
-        if (!target.matches('.accordion-button')) return;
+        if (!target.matches('.accordion-button, .collapse-button-mask')) return;
 
         this.setState({ collapsed: !this.state.collapsed });
     }
@@ -72,6 +72,7 @@ export class Card extends React.Component<CardProps, State> {
                 >
                     {title}
                 </span>
+                <span className='collapse-button-mask' />
             </AccordionButton>
             <Collapse in={!(collapsed || inDragMode)}>
                 <C.Body>

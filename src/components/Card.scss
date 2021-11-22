@@ -7,6 +7,8 @@
         user-select: none;
         pointer-events: none;
 
+
+        .collapse-button-mask,
         &:not(.collapsednt),
         &::after {
             pointer-events: all;
@@ -20,6 +22,13 @@
         .grabbity-header[draggable] {
             pointer-events: all;
             cursor: grab;
+        }
+
+        .collapse-button-mask {
+            position: absolute;
+            right: 0.5rem;
+            width: 2.7rem;
+            height: 2.7rem;
         }
     }
 }

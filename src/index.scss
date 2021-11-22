@@ -31,6 +31,13 @@ body {
 
 #root {
     height: 100%;
+    overflow-y: scroll;
+    // scroll-snap-type: y proximity;
+    // scroll-padding-top: 15vh;
+
+    @media (prefers-reduced-motion: no-preference) {
+        scroll-behavior: smooth;
+    }
 
     :is(.Toastify__toast-container--top-left, .Toastify__toast-container--top-center, .Toastify__toast-container--top-right) {
         top: 4em;

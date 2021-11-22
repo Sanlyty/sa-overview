@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardBoard } from './CardBoard';
+import { CardBoard } from '../CardBoard';
 
 
 export class CacheBoard extends React.Component {

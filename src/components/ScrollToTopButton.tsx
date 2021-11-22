@@ -5,7 +5,9 @@ import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import './ScrollToTopButton.scss';
 import { Theme, ThemeContext } from '../ThemeContext';
 
-interface Props {}
+interface Props {
+    root: Element
+}
 
 interface State {
     visible: boolean
@@ -16,20 +18,19 @@ class ScrollToTopButton extends React.Component<Props, State, Theme> {
     state = { visible: false }
 
     componentDidMount() {
-        window.addEventListener('scroll', this.scrollListener);
+        this.props.root.addEventListener('scroll', this.scrollListener);
     }
 
     componentWillUnmount() {
-        window.removeEventListener('scroll', this.scrollListener);
+        this.props.root.removeEventListener('scroll', this.scrollListener);
     }
 
     scrollToTop = () => {
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
+        this.props.root.scrollTop = 0;
     }
 
     scrollListener = () => {
-        const visible = document.body.scrollTop > 20 || document.documentElement.scrollTop > 20;
+        const visible = this.props.root.scrollTop > 20;
         if (this.state.visible !== visible) this.setState({ visible });
     }
 

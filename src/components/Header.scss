@@ -1,0 +1,72 @@
+
+.overview-header {
+    margin: 0;
+    padding: 0 2rem;
+
+    &.header-main {
+        height: 5.5rem;
+
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+
+        scroll-snap-align: start;
+
+        .title {
+            min-width: 25rem;
+            margin-top: 1rem;
+        }
+
+        .calendar {
+            position: relative;
+
+            .DayPicker-Caption {
+                text-align: center;
+                font-size: .7rem;
+                margin: 0;
+                padding: 0 .2rem;
+            }
+
+            .DayPicker-Weekdays,
+            .DayPicker-NavBar {
+                display: none;
+            }
+
+            .DayPicker-Month {
+                margin: .5rem 1rem;
+            }
+
+            .DayPicker-Day {
+                font-size: .7rem;
+                padding: .2em;
+                line-height: 1.2;
+            }
+        }
+    }
+
+    &.header-sticky {
+        position: sticky;
+        top: -1px;
+        z-index: 10;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        &>* { margin: 0 1rem; }
+        &>*:first-child { margin-left: .2rem; }
+
+        margin-top: -1rem;
+        padding: 1rem 2rem;
+
+        margin-bottom: 1rem;
+
+        transition: background-color .1s;
+        background: transparent;
+
+        &.stuck {
+            background: white;
+            box-shadow: gray 0 1px 5px;
+        }
+    }
+}

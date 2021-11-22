@@ -6,6 +6,7 @@ import { Card, CardProps } from './Card';
 import { Plot, PlotProps as PlotComponentProps } from './Plot';
 
 import './CardBoard.scss';
+import * as Header from './Header';
 
 
 interface PlotProps
@@ -72,7 +73,6 @@ export class CardBoard extends React.Component<CardBoardProps, State> {
     }
 
     dragStarted = (card: Card) => {
-        console.log(card.props.uid);
         this.setState({ draggingId: card.props.uid });
         window.addEventListener('drag', this.draggityDrag);
     }
@@ -99,7 +99,6 @@ export class CardBoard extends React.Component<CardBoardProps, State> {
         let { sortedIds } = this;
 
         const originalIndex = sortedIds.indexOf(uid);
-        console.log(index, originalIndex);
         if (originalIndex === -1) return;
 
         if (index === originalIndex || index === originalIndex + 1) return;
@@ -109,13 +108,13 @@ export class CardBoard extends React.Component<CardBoardProps, State> {
         sortedIds.splice(index, 0, uid); // insert at new position
 
         sortedIds = [...sortedIds];
-        console.log(sortedIds);
         this.sortedIds = sortedIds;
         this.forceUpdate();
     }
 
     render() {
         return <div className='card-board' ref={this.ref}>
+            <Header.Content title='Cache Board' />
             {this.computeSortedCards().map(({ card, id }) => {
                 const layout: Layout[] = [];
                 const children: React.ReactChild[] = [];
