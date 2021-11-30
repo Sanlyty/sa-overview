@@ -20,28 +20,7 @@
 
         .calendar {
             position: relative;
-
-            .DayPicker-Caption {
-                text-align: center;
-                font-size: .7rem;
-                margin: 0;
-                padding: 0 .2rem;
-            }
-
-            .DayPicker-Weekdays,
-            .DayPicker-NavBar {
-                display: none;
-            }
-
-            .DayPicker-Month {
-                margin: .5rem 1rem;
-            }
-
-            .DayPicker-Day {
-                font-size: .7rem;
-                padding: .2em;
-                line-height: 1.2;
-            }
+            z-index: 11;
         }
     }
 
