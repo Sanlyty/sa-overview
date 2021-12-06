@@ -22,8 +22,8 @@ export class Plot extends React.Component<PlotProps, State> {
 
     onResize = debounce(
         ({ width, height }) => this.setState({ width, height }),
-        200,
-        { leading: true, trailing: true, maxWait: 500 }
+        400,
+        { leading: true, trailing: true }
     )
 
     render() {
@@ -36,7 +36,7 @@ export class Plot extends React.Component<PlotProps, State> {
                 <div className='plot-wrapper-outer'>
                     <div className='plot-wrapper-inner'>
                         <AutoSizer defaultHeight={100} onResize={this.onResize}>{
-                            (_) =>
+                            _ =>
                                 <Plotly
                                     data={traces}
                                     config={{ displaylogo: false }}
