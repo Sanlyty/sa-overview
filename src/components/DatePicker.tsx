@@ -47,11 +47,21 @@ function toLegacyDateRange (r?: DateRange) {
 }
 
 const DateTime = {
+    now: () => Temporal.Now.zonedDateTimeISO(),
+
     lt: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) < 0,
     lte: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) <= 0,
     gte: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) >= 0,
     gt: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) > 0,
     eq: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) === 0,
+
+    isBetween: (date: DateTime, start: DateTime, end: DateTime) =>
+        DateTime.gte(date, start) && DateTime.lte(date, end),
+
+    clamp: (date: DateTime, start: DateTime, end: DateTime) =>
+        DateTime.lt(date, start) ? start :
+            DateTime.gt(date, end) ? end :
+                date,
 };
 
 const Duration = {
@@ -62,22 +72,21 @@ const Duration = {
     eq: (a: Duration, b: Duration) => Temporal.Duration.compare(a, b) === 0,
 };
 
-
-function daysBetween(a: DateTime, b: DateTime) {
-    return a.until(b).total({ unit: 'days' });
-}
-
-function isDayBetween(date: DateTime, from: DateTime, to: DateTime) {
-    return DateTime.gte(date, from) && DateTime.lte(date, to);
-}
-
 function isDayEqual(a: DateTime, b: DateTime) {
-    return abs(daysBetween(a, b)) < 1;
+    return abs(a.until(b).total('days')) < 1;
 }
 
 export type DateRangeLike = DateRange | 'day' | 'week' | 'month';
 
-export class DateRangeContext {
+export class DateRangeContext
+{
+    // a bulletproof way to check if there's been an update
+    public counter = 0;
+    incrementCounter() {
+        this.counter++;
+        if (this.counter >= Number.MAX_SAFE_INTEGER) this.counter = 0;
+    }
+
     constructor (
         private component: DateRangeProvider,
         private _value: DateRangeLike | undefined = 'day'
@@ -88,8 +97,6 @@ export class DateRangeContext {
     get value(): DateRangeLike | undefined { return this._value; }
 
     setValue(value: DateRangeLike | 'custom' | undefined) {
-        console.log('setting value:', value);
-
         this.previousValue = this._value ?? this.previousValue;
         if (value === 'custom') value = undefined;
 
@@ -100,6 +107,7 @@ export class DateRangeContext {
         if (eventResult === false) return;
 
         this._value = value;
+        this.incrementCounter();
         this.component.setState({ data: this });
     }
 
@@ -113,7 +121,7 @@ export class DateRangeContext {
     }
 
     private dateRangeLikeToDateRange = (value: DateRangeLike | undefined): DateRange => {
-        const now = Temporal.Now.zonedDateTimeISO();
+        const now = DateTime.now();
         if (value === undefined) value = this.previousValue;
 
         switch (value) {
@@ -213,6 +221,7 @@ interface CalendarProps {}
 interface CalendarState {
     clickState: ClickState;
     preview?: DateRange;
+    month: DateTime;
 }
 
 enum ClickState {
@@ -234,16 +243,14 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
     static contextType = dateRangeContext;
     context!: React.ContextType<typeof QuickButtons.contextType>;
 
-    state: CalendarState = { clickState: ClickState.Empty };
+    state: CalendarState = { clickState: ClickState.Empty, month: DateTime.now() };
     dragging = Dragging.None;
 
     _dragReference: DateTime | undefined = undefined;
     get dragReference(): DateTime | undefined {
-        console.log(`Getting dragReference: ${this._dragReference}`);
         return this._dragReference;
     }
     set dragReference(value: DateTime | undefined) {
-        console.log(`Setting dragReference to: ${this._dragReference}`);
         this._dragReference = value;
     }
 
@@ -328,7 +335,7 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
 
             case Dragging.Range: {
                 const { from, to } = assertSome(this.preDragSelected);
-                const days = daysBetween(assertSome(this.dragReference), day);
+                const days = assertSome(this.dragReference).until(day).total('days');
                 selected = { from: from.add({ days }), to: to.add({ days }) };
                 break;
             }
@@ -340,7 +347,7 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
                 if (!isDayEqual(day, ref)) {
                     if (isDayEqual(ref, from)) this.dragging = Dragging.From;
                     else if (isDayEqual(ref, to)) this.dragging = Dragging.To;
-                    else if (isDayBetween(ref, from, to)) this.dragging = Dragging.Range;
+                    else if (DateTime.isBetween(ref, from, to)) this.dragging = Dragging.Range;
                     else this.dragging = Dragging.None;
 
                     return this.dayHovered(_day);
@@ -369,7 +376,7 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         const { from, to } = this.context.currentRange();
         if (e.button !== 0) return;
 
-        if (from && to && isDayBetween(day, from, to)) {
+        if (DateTime.isBetween(day, from, to)) {
             this.dragReference = day;
             this.preDragSelected = this.context.currentRange();
             this.dragging = Dragging.MightDrag;
@@ -381,7 +388,7 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         const { from, to } = this.context.currentRange();
         if (e.button !== 0) return;
 
-        if (from && to && isDayBetween(day, from, to)) {
+        if (DateTime.isBetween(day, from, to)) {
             this.dragReference = undefined;
             this.preDragSelected = undefined;
 
@@ -399,18 +406,23 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         }
     }
 
-    getSnapshotBeforeUpdate() { return this.context.value ?? null; }
+    monthChange = (_month: Date) => {
+        const month = toTemporal(_month);
+        this.setState({ month });
+    }
 
-    componentDidUpdate(_: unknown, __: unknown, value: DateRangeLike | undefined) {
-        const oldValue = value ?? undefined;
-        const newValue = this.context.value;
+    lastCounter = 0;
+    componentDidUpdate() {
+        if (this.context.counter !== this.lastCounter) {
+            this.lastCounter = this.context.counter;
 
-        // date range has been updated
-        if (newValue !== oldValue) {
-            if (newValue === undefined) {
-                this.setState({ clickState: ClickState.Empty });
+            const { from, to } = this.context.currentRange();
+            const month = DateTime.clamp(this.state.month, from, to);
+
+            if (this.context.value === undefined) {
+                this.setState({ month, clickState: ClickState.Empty });
             } else {
-                this.setState({ clickState: ClickState.RangeSelected });
+                this.setState({ month, clickState: ClickState.RangeSelected });
             }
         }
     }
@@ -418,16 +430,18 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
 
     render() {
         const selected = this.context.value === undefined ? undefined : this.context.currentRange();
-        const { preview } = this.state;
+        const { preview, month } = this.state;
 
         return <div className='calendar'>
             <DayPicker
                 fixedWeeks
                 numberOfMonths={2}
+                month={toDate(month)}
                 onDayClick={this.dayClicked}
                 onDayMouseEnter={this.dayHovered}
                 onDayMouseDown={this.dayMouseDown}
                 onDayMouseUp={this.dayMouseUp}
+                onMonthChange={this.monthChange}
                 modifiers={{
                     selected: toLegacyDateRange(selected),
                     preview: toLegacyDateRange(preview),

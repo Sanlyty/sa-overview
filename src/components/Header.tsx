@@ -78,7 +78,7 @@ export class Content extends React.Component<Props, State> {
     render () {
         const { title } = this.props;
 
-        return <DateRangeProvider onChange={(r) => console.log('date range changed: ', r)}>
+        return <DateRangeProvider>
             <Portal root={mainEl}>
                 <div className='left'>
                     <h1 className='title'>{title}</h1>
