@@ -17,10 +17,25 @@ $fa-arrow-right: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.
     --day-preview: #bebebe;
 
     .DayPicker-Caption {
-        text-align: center;
         font-size: .7rem;
         margin: 0;
         padding: 0 .2rem;
+
+        .flex {
+            display: flex;
+            align-items: center;
+        }
+
+        .grow {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 1rem;
+            padding: 0 .2rem;
+            cursor: pointer;
+        }
     }
 
     .DayPicker-Weekdays,

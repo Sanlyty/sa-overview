@@ -1,7 +1,9 @@
 import React from 'react';
-import DayPicker, { DayModifiers } from 'react-day-picker';
+import DayPicker, { CaptionElementProps, DayModifiers } from 'react-day-picker';
 import { ButtonGroup, Button } from 'react-bootstrap';
 import { toTemporalInstant, Temporal } from '@js-temporal/polyfill';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 const { abs } = Math;
 const { isArray } = Array;
 
@@ -427,6 +429,23 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         }
     }
 
+    isLeftmostMonth = (_date: Date) => {
+        const date = toTemporal(_date);
+        const { month } = this.state;
+
+        return date.month === month.month;
+    }
+
+    isRightmostMonth = (_date: Date) => {
+        const date = toTemporal(_date);
+        const { month } = this.state;
+
+        return date.month === month.month + 1;
+    }
+
+    nextMonth = () => this.setState({ month: this.state.month.add({ months: 1 }) });
+    previousMonth = () => this.setState({ month: this.state.month.subtract({ months: 1 }) });
+
 
     render() {
         const selected = this.context.value === undefined ? undefined : this.context.currentRange();
@@ -451,6 +470,30 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
                     previewEnd: toDate(preview?.to),
                 }}
                 renderDay={day => <span className='day'>{day.getDate()}</span>}
+                captionElement={(props: CaptionElementProps) =>
+                    <div className='DayPicker-Caption'>
+                        <div className='flex'>
+                            {this.isLeftmostMonth(props.date)
+                                ? <div className='icon' onClick={this.previousMonth}>
+                                    <FontAwesomeIcon icon={faAngleLeft} />
+                                </div>
+                                : <div className='icon' />
+                            }
+                            <div className='grow'>
+                                {toTemporal(props.date).toLocaleString('en-GB', {
+                                    month: 'long',
+                                    year: 'numeric',
+                                })}
+                            </div>
+                            {this.isRightmostMonth(props.date)
+                                ? <div className='icon' onClick={this.nextMonth}>
+                                    <FontAwesomeIcon icon={faAngleRight} />
+                                </div>
+                                : <div className='icon' />
+                            }
+                        </div>
+                    </div>
+                }
             />
         </div>;
     }
