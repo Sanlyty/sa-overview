@@ -1,7 +1,7 @@
 import React from 'react';
 import { Portal } from './utils/Portal';
 import './Header.scss';
-import { Calendar, QuickButtons } from './DatePicker';
+import { Calendar, DateRangeProvider, QuickButtons } from './DatePicker';
 const Void = void 0 as void;
 
 let mainEl: HTMLHeadingElement | null;
@@ -78,7 +78,7 @@ export class Content extends React.Component<Props, State> {
     render () {
         const { title } = this.props;
 
-        return <>
+        return <DateRangeProvider onChange={(r) => console.log('date range changed: ', r)}>
             <Portal root={mainEl}>
                 <div className='left'>
                     <h1 className='title'>{title}</h1>
@@ -88,9 +88,9 @@ export class Content extends React.Component<Props, State> {
                 </div>
             </Portal>
             <Portal root={stickyEl}>
-                <QuickButtons selected='day' onChange={() => Void} />
+                <QuickButtons />
                 <span>1. 1. 1900 – 2. 2. 1900</span>
             </Portal>
-        </>;
+        </DateRangeProvider>;
     }
 }
