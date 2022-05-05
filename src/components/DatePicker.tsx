@@ -1,10 +1,10 @@
 import React from 'react';
 import DayPicker, { CaptionElementProps, DayModifiers } from 'react-day-picker';
 import { ButtonGroup, Button } from 'react-bootstrap';
-import { toTemporalInstant, Temporal } from '@js-temporal/polyfill';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
-const { abs } = Math;
+import { DateRange, DateRangeLike, DateTime, Duration, isDayEqual, toLegacyDate, toLegacyDateRange, toTemporal } from '../utils/temporal';
+const { round } = Math;
 const { isArray } = Array;
 
 import 'react-day-picker/lib/style.css';
@@ -13,72 +13,6 @@ import './DatePicker.scss';
 const yeet = (err: unknown = new Error('Assertion error.')) => { throw err; };
 const assertSome = <T,>(value: T | undefined | null): T => value ?? yeet(`Expected a value, found ${value}`);
 
-type DateTime = Temporal.ZonedDateTime;
-type Duration = Temporal.Duration;
-
-export interface DateRange {
-    from: DateTime;
-    to: DateTime;
-}
-
-interface LegacyDateRange {
-    from: Date;
-    to: Date;
-}
-
-const toTemporal = (d: Date): DateTime =>
-    toTemporalInstant
-        .call(d)
-        .toZonedDateTimeISO(Temporal.Now.timeZone());
-
-function toDate (d: DateTime): Date;
-function toDate (d: DateTime | undefined): Date | undefined;
-function toDate (d?: DateTime) {
-    if (d === undefined) return;
-    return new Date(d.epochMilliseconds);
-}
-
-function toLegacyDateRange (r: DateRange): LegacyDateRange;
-function toLegacyDateRange (r: DateRange | undefined): LegacyDateRange | undefined;
-function toLegacyDateRange (r?: DateRange) {
-    if (r === undefined) return;
-    return {
-        from: toDate(r.from),
-        to: toDate(r.to),
-    };
-}
-
-const DateTime = {
-    now: () => Temporal.Now.zonedDateTimeISO(),
-
-    lt: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) < 0,
-    lte: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) <= 0,
-    gte: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) >= 0,
-    gt: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) > 0,
-    eq: (a: DateTime, b: DateTime) => Temporal.ZonedDateTime.compare(a, b) === 0,
-
-    isBetween: (date: DateTime, start: DateTime, end: DateTime) =>
-        DateTime.gte(date, start) && DateTime.lte(date, end),
-
-    clamp: (date: DateTime, start: DateTime, end: DateTime) =>
-        DateTime.lt(date, start) ? start :
-            DateTime.gt(date, end) ? end :
-                date,
-};
-
-const Duration = {
-    lt: (a: Duration, b: Duration) => Temporal.Duration.compare(a, b) < 0,
-    lte: (a: Duration, b: Duration) => Temporal.Duration.compare(a, b) <= 0,
-    gte: (a: Duration, b: Duration) => Temporal.Duration.compare(a, b) >= 0,
-    gt: (a: Duration, b: Duration) => Temporal.Duration.compare(a, b) > 0,
-    eq: (a: Duration, b: Duration) => Temporal.Duration.compare(a, b) === 0,
-};
-
-function isDayEqual(a: DateTime, b: DateTime) {
-    return abs(a.until(b).total('days')) < 1;
-}
-
-export type DateRangeLike = DateRange | 'day' | 'week' | 'month';
 
 export class DateRangeContext
 {
@@ -128,14 +62,14 @@ export class DateRangeContext
 
         switch (value) {
             case 'day': {
-                const from = now.startOfDay();
-                const to = from.add({ days: 1 });
+                const from = DateTime.startOfDay(now);
+                const to = DateTime.endOfDay(now);
                 return { from, to };
             }
 
             case 'week': {
-                const to = now.startOfDay().add({ days: 1 });
-                const from = to.subtract({ weeks: 1 });
+                const from = DateTime.startOfWeek(now);
+                const to = DateTime.endOfWeek(now);
                 return { from, to };
             }
 
@@ -242,6 +176,8 @@ enum Dragging {
 }
 
 export class Calendar extends React.Component<CalendarProps, CalendarState> {
+    readonly monthCount = 2;
+
     static contextType = dateRangeContext;
     context!: React.ContextType<typeof QuickButtons.contextType>;
 
@@ -337,7 +273,7 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
 
             case Dragging.Range: {
                 const { from, to } = assertSome(this.preDragSelected);
-                const days = assertSome(this.dragReference).until(day).total('days');
+                const days = round(assertSome(this.dragReference).until(day).total('days'));
                 selected = { from: from.add({ days }), to: to.add({ days }) };
                 break;
             }
@@ -413,18 +349,39 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         this.setState({ month });
     }
 
+    moveRangeToView = () => {
+        const selectedRange = this.context.currentRange();
+        const monthRange = {
+            from: DateTime.startOfMonth(this.state.month),
+            to: DateTime.endOfMonth(this.state.month),
+        };
+
+        if (DateRange.areOverlaping(selectedRange, monthRange)) return;
+
+        let month: DateTime | null = null;
+        if (DateTime.lt(monthRange.to, selectedRange.from)) {
+            month = DateTime.startOfMonth(selectedRange.from).subtract({
+                months: this.monthCount - 1,
+            });
+        }
+        else if (DateTime.lt(selectedRange.to, monthRange.from)) {
+            month = DateTime.startOfMonth(selectedRange.to);
+        }
+
+        if (month !== null) this.setState({ month });
+    }
+
     lastCounter = 0;
     componentDidUpdate() {
         if (this.context.counter !== this.lastCounter) {
             this.lastCounter = this.context.counter;
 
-            const { from, to } = this.context.currentRange();
-            const month = DateTime.clamp(this.state.month, from, to);
+            if (this.dragging === Dragging.None) this.moveRangeToView();
 
             if (this.context.value === undefined) {
-                this.setState({ month, clickState: ClickState.Empty });
+                this.setState({ clickState: ClickState.Empty });
             } else {
-                this.setState({ month, clickState: ClickState.RangeSelected });
+                this.setState({ clickState: ClickState.RangeSelected });
             }
         }
     }
@@ -440,7 +397,8 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         const date = toTemporal(_date);
         const { month } = this.state;
 
-        return date.month === month.month + 1;
+        const monthShifted = month.add({ months: this.monthCount - 1 });
+        return monthShifted.month === date.month;
     }
 
     nextMonth = () => this.setState({ month: this.state.month.add({ months: 1 }) });
@@ -454,8 +412,8 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
         return <div className='calendar'>
             <DayPicker
                 fixedWeeks
-                numberOfMonths={2}
-                month={toDate(month)}
+                numberOfMonths={this.monthCount}
+                month={toLegacyDate(month)}
                 onDayClick={this.dayClicked}
                 onDayMouseEnter={this.dayHovered}
                 onDayMouseDown={this.dayMouseDown}
@@ -464,10 +422,10 @@ export class Calendar extends React.Component<CalendarProps, CalendarState> {
                 modifiers={{
                     selected: toLegacyDateRange(selected),
                     preview: toLegacyDateRange(preview),
-                    selectedStart: toDate(selected?.from),
-                    selectedEnd: toDate(selected?.to),
-                    previewStart: toDate(preview?.from),
-                    previewEnd: toDate(preview?.to),
+                    selectedStart: toLegacyDate(selected?.from),
+                    selectedEnd: toLegacyDate(selected?.to),
+                    previewStart: toLegacyDate(preview?.from),
+                    previewEnd: toLegacyDate(preview?.to),
                 }}
                 renderDay={day => <span className='day'>{day.getDate()}</span>}
                 captionElement={(props: CaptionElementProps) =>

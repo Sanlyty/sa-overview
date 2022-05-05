@@ -1,7 +1,24 @@
 import React from 'react';
 import { CardBoard } from '../CardBoard';
 
+import '../../utils/fakeData';
+import { generateFakeTimeSeries } from '../../utils/fakeData';
+import { Temporal } from '@js-temporal/polyfill';
+import { DateTime } from '../../utils/temporal';
 
+const { max } = Math;
+
+
+const gen = () => {
+    const { x, y } = generateFakeTimeSeries(
+        DateTime.now().subtract({ days: 30 }),
+        DateTime.now().add({ days: 30 }),
+        Temporal.Duration.from({ minutes: 10 }),
+        8,
+        0.4
+    );
+    return { x: x.map(_ => new Date(_)), y: y.map(_ => max(_, 0)) };
+};
 export class CacheBoard extends React.Component {
     render () {
         return <CardBoard>
@@ -16,16 +33,14 @@ export class CacheBoard extends React.Component {
                             traces: [
                                 {
                                     name: 'MPU-010.HIE-01G',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [2, 6, 4, 5, 7, 6],
+                                    type: 'scattergl', mode: 'lines',
                                     marker: {color: 'red'},
+                                    ...gen(),
                                 },
                                 {
                                     name: 'MPU-210.HIE-21G',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [5, 8, 3, 2, 4, 1],
+                                    type: 'scattergl', mode: 'lines',
+                                    ...gen(),
                                 },
                             ],
                         },
@@ -35,17 +50,15 @@ export class CacheBoard extends React.Component {
                             traces: [
                                 {
                                     name: 'HIE-01G.ISW01',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [23, 14, 18, 10, 7, 8],
+                                    type: 'scattergl', mode: 'lines',
                                     marker: {color: 'blue'},
+                                    ...gen(),
                                 },
                                 {
                                     name: 'HIE-21G.ISW11',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6],
-                                    y: [15, 18, 17, 14, 18, 16],
+                                    type: 'scattergl', mode: 'lines',
                                     marker: {color: 'green'},
+                                    ...gen(),
                                 },
                             ],
                         },
@@ -61,10 +74,9 @@ export class CacheBoard extends React.Component {
                             traces: [
                                 {
                                     name: 'ALL',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                                    y: [4, 4, 6, 4, 4, 2, 4, 4, 4, 3],
+                                    type: 'scattergl', mode: 'lines',
                                     marker: {color: 'blue'},
+                                    ...gen(),
                                 },
                             ],
                         },
@@ -80,10 +92,9 @@ export class CacheBoard extends React.Component {
                             traces: [
                                 {
                                     name: 'ALL',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3],
-                                    y: [3,-2, 6],
+                                    type: 'scattergl', mode: 'lines',
                                     marker: {color: 'green'},
+                                    ...gen(),
                                 },
                             ],
                         },
@@ -93,10 +104,9 @@ export class CacheBoard extends React.Component {
                             traces: [
                                 {
                                     name: 'ALL',
-                                    type: 'scatter', mode: 'lines',
-                                    x: [1, 2, 3],
-                                    y: [-8, 0, 64],
+                                    type: 'scattergl', mode: 'lines',
                                     marker: {color: 'green'},
+                                    ...gen(),
                                 },
                             ],
                         },

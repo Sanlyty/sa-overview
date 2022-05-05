@@ -1,7 +1,7 @@
 import React from 'react';
 import { Portal } from './utils/Portal';
 import './Header.scss';
-import { Calendar, DateRangeProvider, QuickButtons } from './DatePicker';
+import { Calendar, dateRangeContext, DateRangeProvider, QuickButtons } from './DatePicker';
 const Void = void 0 as void;
 
 let mainEl: HTMLHeadingElement | null;
@@ -62,6 +62,9 @@ interface Props {
 }
 
 export class Content extends React.Component<Props, State> {
+    static contextType = dateRangeContext;
+    context!: React.ContextType<typeof Content.contextType>;
+
     state = { stuck: false };
 
     componentDidMount() {
@@ -77,8 +80,9 @@ export class Content extends React.Component<Props, State> {
 
     render () {
         const { title } = this.props;
+        const { from, to } = this.context.currentRange();
 
-        return <DateRangeProvider>
+        return <>
             <Portal root={mainEl}>
                 <div className='left'>
                     <h1 className='title'>{title}</h1>
@@ -89,8 +93,8 @@ export class Content extends React.Component<Props, State> {
             </Portal>
             <Portal root={stickyEl}>
                 <QuickButtons />
-                <span>1. 1. 1900 – 2. 2. 1900</span>
+                <span>{from.toPlainDate().toLocaleString()} – {to.toPlainDate().toLocaleString()}</span>
             </Portal>
-        </DateRangeProvider>;
+        </>;
     }
 }

@@ -7,6 +7,7 @@ import { Plot, PlotProps as PlotComponentProps } from './Plot';
 
 import './CardBoard.scss';
 import * as Header from './Header';
+import { DateRangeContext, DateRangeProvider } from './DatePicker';
 
 
 interface PlotProps
@@ -113,21 +114,23 @@ export class CardBoard extends React.Component<CardBoardProps, State> {
     }
 
     render() {
-        return <div className='card-board' ref={this.ref}>
-            <Header.Content title='Cache Board' />
-            {this.computeSortedCards().map(({ card, id }) => {
-                const layout: Layout[] = [];
-                const children: React.ReactChild[] = [];
+        return <DateRangeProvider>
+            <div className='card-board' ref={this.ref}>
+                <Header.Content title='Cache Board' />
+                {this.computeSortedCards().map(({ card, id }) => {
+                    const layout: Layout[] = [];
+                    const children: React.ReactChild[] = [];
 
-                for (const [key, plot] of Object.entries(card.plots)) {
-                    layout.push({ ...plot.layout, i: key });
-                    children.push( <div key={key}><Plot {...plot} /></div> );
-                }
+                    for (const [key, plot] of Object.entries(card.plots)) {
+                        layout.push({ ...plot.layout, i: key });
+                        children.push( <div key={key}><Plot {...plot} /></div> );
+                    }
 
-                const props = Object.assign(omit(card, 'plots'), { layout, children });
+                    const props = Object.assign(omit(card, 'plots'), { layout, children });
 
-                return <Card {...props} key={id} uid={id} dragStarted={this.dragStarted} dragEnded={this.dragEnded} />;
-            })}
-        </div>;
+                    return <Card {...props} key={id} uid={id} dragStarted={this.dragStarted} dragEnded={this.dragEnded} />;
+                })}
+            </div>
+        </DateRangeProvider>;
     }
 }
